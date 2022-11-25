@@ -12,7 +12,6 @@ import javax.ws.rs.core.UriInfo;
 import org.jboss.logging.Logger;
 
 import de.berlin.htw.boundary.dto.Orders;
-import de.berlin.htw.control.BasketController;
 import de.berlin.htw.control.OrderController;
 
 /**
@@ -28,9 +27,6 @@ public class OrderResource {
     SecurityContext context;
     
     @Inject
-    BasketController basket;
-
-    @Inject
     OrderController order;
 
     @Inject
@@ -38,10 +34,11 @@ public class OrderResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Orders info() {
-    	logger.info("User " + context.getUserPrincipal().getName() 
+    public Orders getCompletedOrders() {
+    	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
-    	
+
+    	// return all completed orders of a user
         return order.todo();
     }
 

@@ -1,28 +1,30 @@
 package de.berlin.htw.boundary.dto;
 
+import java.util.List;
+
 /**
  * @author Alexander Stanik [stanik@htw-berlin.de]
  */
 public class Order {
 
-    private String title;
+    private List<Item> items;
     
-    private Integer count;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(final String title) {
-        this.title = title;
-    }
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(final Integer count) {
-        this.count = count;
-    }
+    private Float total;
     
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
+    public Float getTotal() {
+        return total;
+    }
+
+    public void setTotal(Float total) {
+        this.total = total;
+    }
+
 }

@@ -5,31 +5,26 @@ import java.security.Principal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
 
 /**
  * @author Alexander Stanik [stanik@htw-berlin.de]
  */
-@NamedQuery(name = "UserEntity.deleteById", query = "delete from UserEntity user where user.id = :id")
 @Entity
 @Table(name = "USER")
 public class UserEntity extends AbstractEntity implements Principal {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "ID")
     private Integer id;
     
     @Column(name = "NAME")
     private String name;
     
-    @Email
-    @Column(name = "BALANCE", nullable = false)
-    private String balance;
+    @Column(name = "BALANCE")
+    private Float balance;
 
     public Integer getId() {
         return id;
@@ -48,11 +43,11 @@ public class UserEntity extends AbstractEntity implements Principal {
         this.name = name;
     }
 
-    public String getBalance() {
+    public Float getBalance() {
         return balance;
     }
 
-    public void setBalance(String balance) {
+    public void setBalance(Float balance) {
         this.balance = balance;
     }
     
