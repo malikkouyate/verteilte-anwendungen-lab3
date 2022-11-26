@@ -33,7 +33,7 @@ sowie kurzlebigen Daten verwendet, d.h. für den Warenkorbinhalt der Benutzer.
 starten. Beachten Sie bitte die bereits vorhandenen Konfigurationen in der 
 [application.properties](src/main/resources/application.properties). Wenn Sie die MySQL und den Redis Server korrekt gestartet haben, dann sollten Sie das Projekt bauen und die Integrationstests ausführen können.
 
-2.  **(2P)** Eines der wichtigsten Aspekte einer Applikation im Internet ist die Sicherheit. Um auch diese Backend-Applikation vor Angreifern zu schützen, sollten Sie sämtliche Eingaben validieren. Dies kann auf unterschiedliche Arten geschehen. Nutzen Sie bitte vorrangig die BeanValidation und stellen Sie Sicher, dass folgende Richtlinien einghalten werden:
+2.  **(4P)** Eines der wichtigsten Aspekte einer Applikation im Internet ist die Sicherheit. Um auch diese Backend-Applikation vor Angreifern zu schützen, sollten Sie sämtliche Eingaben validieren. Dies kann auf unterschiedliche Arten geschehen. Nutzen Sie bitte vorrangig die BeanValidation und stellen Sie Sicher, dass folgende Richtlinien einghalten werden:
     - Ein Artikelname kann nicht länger als 255 Zeichen sein
     - Die Artikelnummer besteht aus 6 Zahlen, die durch ein Bindestrich getrennt sind (Beispiel: '1-2-3-4-5-6')
     - Der Peis muss immer zwischen 10 und 100 Euro liegen
@@ -42,7 +42,7 @@ starten. Beachten Sie bitte die bereits vorhandenen Konfigurationen in der
     Schreiben Sie bitte mindestens 5 Integrationstest mit RestAssured, 
     die die Validierung der Eingabedaten prüfen.
 
-3.  **(4P)** Implementieren Sie bitte die Warenkorbfunktionalität in
+3.  **(6P)** Implementieren Sie bitte die Warenkorbfunktionalität in
 [BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource.java) und
 [BasketController](src/main/java/de/berlin/htw/control/BasketController.java).
 Entscheiden Sie sich für eine geeignete [Datenstruktur](https://redis.io/docs/data-types/),
@@ -55,17 +55,17 @@ D.h. wenn innerhalb von 2 Minuten keine Änderungen (Neue Artikel in den Warenko
 Ändern der Anzahl, Löschen eines Artikels) am Warenkorb durchgeführt werden,
 dann wird der gesamte Warenkorb eines Benutzers automatisch gelöscht.
 
-4.  **(4P)** Zusätzlich zu den Kundendaten sollen auch
+4.  **(2P)** Zusätzlich zu den Kundendaten sollen auch
 die abgeschlossenen Bestellungen in der MySQL gespeichert werden.
 Hierzu muss das bestehende Schema erweitert werden.
 Erstellen Sie daher ein weiteres 
 [Liquibase ChangeSet](https://docs.liquibase.com/concepts/changelogs/xml-format.html) in 
 [liquibase-changelog.xml](backend/src/main/resources/META-INF/liquibase-changelog.xml), das das Speichern einer Bestellung ermöglicht.
 
-5.  **(4P)** Implementieren Sie bitte die Auftragserteilung in
+5.  **(6P)** Implementieren Sie bitte die Auftragserteilung in
 [BasketResource.checkout()](src/main/java/de/berlin/htw/boundary/BasketResource.java) 
 sowie das Abfragen der abgeschlossenen Bestellungen in
-[OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource).
+[OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource.java).
 Stellen Sie sicher, dass der Warenkorb nach der Bestellung leer ist.
 Achten Sie auf die Transaction Boundary, damit
 das Guthabenkonto der Kunden korrekt belastet werden. 
