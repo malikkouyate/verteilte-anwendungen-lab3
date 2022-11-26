@@ -12,10 +12,10 @@ Mögliche Punktzahl: 20 Punkte
 ## Aufgabestellung
 In dieser Aufgabe erhalten Sie eine vorkonfigurierte Backend-Application, die von einem Webshop als Warenkorb sowie zum Abschluss einer Bestellung genutzt werden soll.
 Die REST-Schnittstelle wurde von dem Auftraggeber spezifiziert und bereits in den Klassen
-[BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource) und
-[OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource)
+[BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource.java) und
+[OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource.java)
 umgesetzt.
-Sie dürfen zwar die Methoden-Signatur ändern, jedoch nicht das spezifiziert Antwortverhalten über HTTP!
+Sie dürfen zwar die Methoden-Signatur ändern, jedoch nicht das spezifizierte Antwortverhalten über HTTP!
 
 Das Geschäftsmodell des Auftraggebers basiert auf einer
 Prepaid-Zahlungsmethode; d.h. die Kunden müssen erst ihr Kundenkonto aufladen bevor Sie das Geld für einen Artikel ausgeben können. 
@@ -23,33 +23,32 @@ Stellen Sie daher sicher, dass nielams ein Artikel zum Warenkorb hinzugefügt we
 
 Zur Realisierung des Warenkorbs kommen zwei Technologien zum Einsatz:
 - MySQL Datenbank: Die Datenbank wird zum langfristigen Speichern von Daten verwendet,
-d.h. für Benutzerdaten, dem Kontostand und abgeschlossenen Bestellungen.
+d.h. für Benutzerdaten inkl. dem Kontostand und für abgeschlossene Bestellungen.
 - Redis Distributed Cache: Der Distributed Cache wird zum Speichern von sich schnell ändernden
-sowie kurzlebige Daten verwendet, d.h. für den Warenkorbinhalt der Benutzer.
+sowie kurzlebigen Daten verwendet, d.h. für den Warenkorbinhalt der Benutzer.
 
 1.  **(2P)** Wie Sie sicherlich bereits festgestellt haben, lässt sich das Projekt nicht so einfach mittels ``$ mvn package`` bauen und mit ``$ java -jar target/verteilte-anwendung-runner.jar`` starten. Dies liegt zum Einen an der fehlenden Datenbank und zum Anderen an dem fehlenden Redis Server! Schreiben Sie daher ein Docker Compose File mit dem Sie das
 [offizielle Image der MySQL aus Docker Hub](https://hub.docker.com/_/mysql) sowie das
 [offizielle Image des Redis aus Docker Hub](https://hub.docker.com/_/redis)
 starten. Beachten Sie bitte die bereits vorhandenen Konfigurationen in der 
-[application.properties](src/main/resources/application.properties). Wenn Sie die MySQL und den den Redis Server korrekt gestartet haben, dann sollten Sie das Projekt bauen und die Integrationstests ausführen können.
+[application.properties](src/main/resources/application.properties). Wenn Sie die MySQL und den Redis Server korrekt gestartet haben, dann sollten Sie das Projekt bauen und die Integrationstests ausführen können.
 
-2.  **(2P)** Eines der wichtigsten Aspekte einer Applikation im Internet ist die Sicherheit. Um auch diese Backend-Applikation vor Angreifern zu schützen sollten Sie sämtliche Eingaben validieren. Dies kann auf unterschiedliche Arten geschehen. Nutzen Sie bitte vorrangig die BeanValidation und stellen Sie Sicher, dass folgende Richtlinien einghalten werden:
-- Ein Artikelname kann nicht länger als 255 Zeichen sein
-- Die Artikelnummer besteht aus 6 Zahlen, die durch ein Bindestrich getrennt sind (Beispiel: '1-2-3-4-5-6')
-- Der Peis muss immer zwischen 10 und 100 Euro liegen
-- Es können nicht mehr als 10 Artikel in den Wahrenkorb hinzugefügt werden
+2.  **(2P)** Eines der wichtigsten Aspekte einer Applikation im Internet ist die Sicherheit. Um auch diese Backend-Applikation vor Angreifern zu schützen, sollten Sie sämtliche Eingaben validieren. Dies kann auf unterschiedliche Arten geschehen. Nutzen Sie bitte vorrangig die BeanValidation und stellen Sie Sicher, dass folgende Richtlinien einghalten werden:
+    - Ein Artikelname kann nicht länger als 255 Zeichen sein
+    - Die Artikelnummer besteht aus 6 Zahlen, die durch ein Bindestrich getrennt sind (Beispiel: '1-2-3-4-5-6')
+    - Der Peis muss immer zwischen 10 und 100 Euro liegen
+    - Es können sich nicht mehr als 10 Artikel im Wahrenkorb befinden
 
-Schreiben Sie bitte mindestens 5 Integrationstest mit RestAssured, 
-die die Validierung der Eingabedaten prüfen.
+    Schreiben Sie bitte mindestens 5 Integrationstest mit RestAssured, 
+    die die Validierung der Eingabedaten prüfen.
 
-3.  **(4P)** Implementieren Sie bitte die Warenkorbfunktionalität in  
-[BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource) und
-[BasketController](src/main/java/de/berlin/htw/control/BasketController).
+3.  **(4P)** Implementieren Sie bitte die Warenkorbfunktionalität in
+[BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource.java) und
+[BasketController](src/main/java/de/berlin/htw/control/BasketController.java).
 Entscheiden Sie sich für eine geeignete [Datenstruktur](https://redis.io/docs/data-types/),
 um die Artikel des Warenkorbs in Redis zu speichern.
 Stellen sie unbedingt sicher, dass die Nutzer nicht den Warenkorb anderer Nutzer sehen 
 oder überschreiben können.
-
 Da wir den Warenkorb der Nutzer nicht langfristig speichern woll,
 soll der Warenkorb mit einer Ablauffrist belegt werden. 
 D.h. wenn innerhalb von 2 Minuten keine Änderungen (Neue Artikel in den Warenkorb,
@@ -63,8 +62,8 @@ Erstellen Sie daher ein weiteres
 [Liquibase ChangeSet](https://docs.liquibase.com/concepts/changelogs/xml-format.html) in 
 [liquibase-changelog.xml](backend/src/main/resources/META-INF/liquibase-changelog.xml), das das Speichern einer Bestellung ermöglicht.
 
-5.  **(4P)** Implementieren Sie bitte die Auftragserteilung in  
-[BasketResource.checkout()](src/main/java/de/berlin/htw/boundary/BasketResource) 
+5.  **(4P)** Implementieren Sie bitte die Auftragserteilung in
+[BasketResource.checkout()](src/main/java/de/berlin/htw/boundary/BasketResource.java) 
 sowie das Abfragen der abgeschlossenen Bestellungen in
 [OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource).
 Stellen Sie sicher, dass der Warenkorb nach der Bestellung leer ist.
