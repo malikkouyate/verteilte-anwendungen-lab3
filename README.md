@@ -1,20 +1,75 @@
-# Verteilte Anwendungen Übungsaufgabe 1
+# Verteilte Anwendungen Übungsaufgabe 3
 
 Mögliche Punktzahl: 20 Punkte
 
 ## Deadlines
 
-- 1. Zug 1. Gruppe: 14.11.2022
-- 1. Zug 2. Gruppe: 17.11.2022
-- 2. Zug 1. Gruppe: 15.11.2022
-- 2. Zug 2. Gruppe: 15.11.2022 
+- 1. Zug 1. Gruppe: 09.01.2023
+- 1. Zug 2. Gruppe: 12.01.2023
+- 2. Zug 1. Gruppe: 10.01.2023
+- 2. Zug 2. Gruppe: 10.01.2023 
 
 ## Aufgabestellung
+In dieser Aufgabe erhalten Sie eine vorkonfigurierte Backend-Application, die von einem Webshop als Warenkorb sowie zum Abschluss einer Bestellung genutzt werden soll.
+Die REST-Schnittstelle wurde von dem Auftraggeber spezifiziert und bereits in den Klassen
+[BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource) und
+[OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource)
+umgesetzt.
+Sie dürfen zwar die Methoden-Signatur ändern, jedoch nicht das spezifiziert Antwortverhalten über HTTP!
 
-1.  **(4P)** Schreiben Sie ein Dockerfile mit dem Sie das [offizielle Image des NGINX von Docker Hub](https://hub.docker.com/_/nginx) erweitern. Erstellen Sie eine individuelle HTML Seite, die die Matrikelnummern der Gruppenteilnehmer darstellt und die Namen der Gruppenmitglieder als Meta Tag „author“ ausliefert. Starten Sie einen Container mit ihrem eigenen Image mittels ``$ docker run -d -p 8080:80 verteilte-anwendungen-nginx`` und stellen Sie sicher, dass die erstellte HTML Datei unter [http://localhost:8080/verteilte-anwendungen/test.html](http://localhost:8080/verteilte-anwendungen/test.html) von dem Container richtig ausgeliefert wird.
-2.  **(4P)** Bauen Sie mit Hilfe von Maven die Quarkus Applikation sowie das entsprechende Docker Image. Starten sie einen Container mit der Quarkus Applikation und testen Sie die RESTful Webservices mit Hilfe eines REST Clients (z.B. curl oder Insomnia).
-3.  **(4P)** Schreiben Sie ein Docker Compose file mit dem Sie das angepasste Image aus dem ersten Schritt starten. Der gestartete Container soll über Port 8181 erreichbar sein und die Konfiguration aus einer lokalen Datei des Host Systems (somit nicht im Image enthalten) lesen.
-4.  **(8P)** Erweitern sie die Quarkus Applikation, um einen weiteren REST Endpunkt. Dieser soll unter dem Pfad `/aufgaben/1/` eine Ressource namens „zahl“ vom Media Type ``application/example`` bereitstellen. Der REST Endpunkt soll vier Methoden unterstützen: 1. Initiales Anlegen einer Zahl, 2. Abrufen der aktuellen Zahl, 3. Aktualisieren einer Zahl und 4. Löschen einer Zahl. 
+Das Geschäftsmodell des Auftraggebers basiert auf einer
+Prepaid-Zahlungsmethode; d.h. die Kunden müssen erst ihr Kundenkonto aufladen bevor Sie das Geld für einen Artikel ausgeben können. 
+Stellen Sie daher sicher, dass nielams ein Artikel zum Warenkorb hinzugefügt werden kann bzw. eine Bestellung aufgegeben werden kann, wenn das entsprechende Kundenkonto nicht gedeckt ist.
+
+Zur Realisierung des Warenkorbs kommen zwei Technologien zum Einsatz:
+- MySQL Datenbank: Die Datenbank wird zum langfristigen Speichern von Daten verwendet,
+d.h. für Benutzerdaten, dem Kontostand und abgeschlossenen Bestellungen.
+- Redis Distributed Cache: Der Distributed Cache wird zum Speichern von sich schnell ändernden
+sowie kurzlebige Daten verwendet, d.h. für den Warenkorbinhalt der Benutzer.
+
+1.  **(2P)** Wie Sie sicherlich bereits festgestellt haben, lässt sich das Projekt nicht so einfach mittels ``$ mvn package`` bauen und mit ``$ java -jar target/verteilte-anwendung-runner.jar`` starten. Dies liegt zum Einen an der fehlenden Datenbank und zum Anderen an dem fehlenden Redis Server! Schreiben Sie daher ein Docker Compose File mit dem Sie das
+[offizielle Image der MySQL aus Docker Hub](https://hub.docker.com/_/mysql) sowie das
+[offizielle Image des Redis aus Docker Hub](https://hub.docker.com/_/redis)
+starten. Beachten Sie bitte die bereits vorhandenen Konfigurationen in der 
+[application.properties](src/main/resources/application.properties). Wenn Sie die MySQL und den den Redis Server korrekt gestartet haben, dann sollten Sie das Projekt bauen und die Integrationstests ausführen können.
+
+2.  **(2P)** Eines der wichtigsten Aspekte einer Applikation im Internet ist die Sicherheit. Um auch diese Backend-Applikation vor Angreifern zu schützen sollten Sie sämtliche Eingaben validieren. Dies kann auf unterschiedliche Arten geschehen. Nutzen Sie bitte vorrangig die BeanValidation und stellen Sie Sicher, dass folgende Richtlinien einghalten werden:
+- Ein Artikelname kann nicht länger als 255 Zeichen sein
+- Die Artikelnummer besteht aus 6 Zahlen, die durch ein Bindestrich getrennt sind (Beispiel: '1-2-3-4-5-6')
+- Der Peis muss immer zwischen 10 und 100 Euro liegen
+- Es können nicht mehr als 10 Artikel in den Wahrenkorb hinzugefügt werden
+
+Schreiben Sie bitte mindestens 5 Integrationstest mit RestAssured, 
+die die Validierung der Eingabedaten prüfen.
+
+3.  **(4P)** Implementieren Sie bitte die Warenkorbfunktionalität in  
+[BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource) und
+[BasketController](src/main/java/de/berlin/htw/control/BasketController).
+Entscheiden Sie sich für eine geeignete [Datenstruktur](https://redis.io/docs/data-types/),
+um die Artikel des Warenkorbs in Redis zu speichern.
+Stellen sie unbedingt sicher, dass die Nutzer nicht den Warenkorb anderer Nutzer sehen 
+oder überschreiben können.
+
+Da wir den Warenkorb der Nutzer nicht langfristig speichern woll,
+soll der Warenkorb mit einer Ablauffrist belegt werden. 
+D.h. wenn innerhalb von 2 Minuten keine Änderungen (Neue Artikel in den Warenkorb,
+Ändern der Anzahl, Löschen eines Artikels) am Warenkorb durchgeführt werden,
+dann wird der gesamte Warenkorb eines Benutzers automatisch gelöscht.
+
+4.  **(4P)** Zusätzlich zu den Kundendaten sollen auch
+die abgeschlossenen Bestellungen in der MySQL gespeichert werden.
+Hierzu muss das bestehende Schema erweitert werden.
+Erstellen Sie daher ein weiteres 
+[Liquibase ChangeSet](https://docs.liquibase.com/concepts/changelogs/xml-format.html) in 
+[liquibase-changelog.xml](backend/src/main/resources/META-INF/liquibase-changelog.xml), das das Speichern einer Bestellung ermöglicht.
+
+5.  **(4P)** Implementieren Sie bitte die Auftragserteilung in  
+[BasketResource.checkout()](src/main/java/de/berlin/htw/boundary/BasketResource) 
+sowie das Abfragen der abgeschlossenen Bestellungen in
+[OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource).
+Stellen Sie sicher, dass der Warenkorb nach der Bestellung leer ist.
+Achten Sie auf die Transaction Boundary, damit
+das Guthabenkonto der Kunden korrekt belastet werden. 
 
 
 # Quarkus Get Started
