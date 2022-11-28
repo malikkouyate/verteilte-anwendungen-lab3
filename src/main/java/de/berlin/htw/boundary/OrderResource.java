@@ -13,6 +13,8 @@ import org.jboss.logging.Logger;
 
 import de.berlin.htw.boundary.dto.Orders;
 import de.berlin.htw.control.OrderController;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 /**
  * @author Alexander Stanik [stanik@htw-berlin.de]
@@ -34,11 +36,13 @@ public class OrderResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Retrieve all completed orders of a users.")
+    @APIResponse(responseCode = "200", description = "Retieve all completed orders successfully")
+    @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     public Orders getCompletedOrders() {
     	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
 
-    	// return all completed orders of a user
         return order.todo();
     }
 

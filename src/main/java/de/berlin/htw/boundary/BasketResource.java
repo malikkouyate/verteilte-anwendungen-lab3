@@ -7,6 +7,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -15,10 +16,17 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.headers.Header;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.logging.Logger;
 
 import de.berlin.htw.boundary.dto.Basket;
 import de.berlin.htw.boundary.dto.Item;
+import de.berlin.htw.boundary.dto.Order;
 import de.berlin.htw.control.BasketController;
 
 /**
@@ -41,6 +49,9 @@ public class BasketResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Retrieve the basket with all items.")
+    @APIResponse(responseCode = "200", description = "Retieve all items in basket successfully")
+    @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     public Basket getBasket() {
     	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
@@ -49,6 +60,9 @@ public class BasketResource {
     }
 
     @DELETE
+    @Operation(summary = "Remove all items from basket.")
+    @APIResponse(responseCode = "204", description = "Items removed successfully")
+    @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     public void clearBasket() {
     	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
@@ -57,6 +71,12 @@ public class BasketResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Checkout the basket and complete the order.")
+    @APIResponse(responseCode = "201", description = "Checkout successfully",
+            headers = @Header(name = "Location", description = "URL to retrive all orders"),
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Order.class)) )
+    @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
+    @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
     public Response checkout() {
     	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
@@ -67,19 +87,34 @@ public class BasketResource {
     }
 
     @POST
+    @Path("{productId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addItem(final Item item) {
+    @Operation(summary = "Add an item to basket.")
+    @APIResponse(responseCode = "201", description = "Item added successfully",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Basket.class)) )
+    @APIResponse(responseCode = "400", description = "Invalid request message")
+    @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
+    @APIResponse(responseCode = "409", description = "Another product with this ID already exist in the basket")
+    public Response addItem(
+            @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
+            @Parameter(description = "The item to add in the basket", required = true) final Item item) {
     	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
     	// return basket with remaining balance
         return Response.status(Status.NOT_IMPLEMENTED).build();
     }
 
-    @GET
-    @Path("{id}")
+    @DELETE
+    @Path("{productId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removeItem() {
+    @Operation(summary = "Remove an item from basket.")
+    @APIResponse(responseCode = "200", description = "Item removed successfully",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Basket.class)) )
+    @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
+    @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
+    public Response removeItem(
+            @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId) {
     	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
     	// return basket with remaining balance
@@ -87,10 +122,18 @@ public class BasketResource {
     }
 
     @PATCH
-    @Path("{id}")
+    @Path("{productId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response changeCount(final Item item) {
+    @Operation(summary = "Change the number of an item in the basket.")
+    @APIResponse(responseCode = "200", description = "Number changed successfully",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Basket.class)) )
+    @APIResponse(responseCode = "400", description = "Invalid request message")
+    @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
+    @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
+    public Response changeCount(
+            @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
+            @Parameter(description = "The number of that product in the basket", required = true) final Item item) {
     	logger.info(context.getUserPrincipal().getName() 
     			+ " is calling " + uri.getAbsolutePath());
     	// return basket with remaining balance

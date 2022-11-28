@@ -15,11 +15,12 @@ Die REST-Schnittstelle wurde von dem Auftraggeber spezifiziert und bereits in de
 [BasketResource](src/main/java/de/berlin/htw/boundary/BasketResource.java) und
 [OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource.java)
 umgesetzt.
-Sie dürfen zwar die Methoden-Signatur ändern, jedoch nicht das spezifizierte Antwortverhalten über HTTP!
+Sie dürfen zwar die Methoden-Signatur ändern, jedoch nicht das spezifizierte Antwortverhalten über HTTP! Die OpenAPI Spezifikation kann über die [Swagger UI](http://localhost:8080/q/swagger/)
+eingesehen werden.
 
 Das Geschäftsmodell des Auftraggebers basiert auf einer
-Prepaid-Zahlungsmethode; d.h. die Kunden müssen erst ihr Kundenkonto aufladen bevor Sie das Geld für einen Artikel ausgeben können. 
-Stellen Sie daher sicher, dass nielams ein Artikel zum Warenkorb hinzugefügt werden kann bzw. eine Bestellung aufgegeben werden kann, wenn das entsprechende Kundenkonto nicht gedeckt ist.
+Prepaid-Zahlungsmethode; d.h. die Kunden müssen erst ihr Kundenkonto aufladen, bevor Sie das Geld für einen Artikel ausgeben können. 
+Stellen Sie daher sicher, dass niemals ein Artikel zum Warenkorb hinzugefügt werden kann bzw. eine Bestellung aufgegeben werden kann, wenn das entsprechende Kundenkonto nicht gedeckt ist.
 
 Zur Realisierung des Warenkorbs kommen zwei Technologien zum Einsatz:
 - MySQL Datenbank: Die Datenbank wird zum langfristigen Speichern von Daten verwendet,
@@ -37,7 +38,7 @@ starten. Beachten Sie bitte die bereits vorhandenen Konfigurationen in der
     - Ein Artikelname kann nicht länger als 255 Zeichen sein
     - Die Artikelnummer besteht aus 6 Zahlen, die durch ein Bindestrich getrennt sind (Beispiel: '1-2-3-4-5-6')
     - Der Peis muss immer zwischen 10 und 100 Euro liegen
-    - Es können sich nicht mehr als 10 Artikel im Wahrenkorb befinden
+    - Der Inhalt des Warenkorbs darf nicht mehr als 10 Artikel überschreiten
 
     Schreiben Sie bitte mindestens 5 Integrationstest mit RestAssured, 
     die die Validierung der Eingabedaten prüfen.
@@ -49,7 +50,7 @@ Entscheiden Sie sich für eine geeignete [Datenstruktur](https://redis.io/docs/d
 um die Artikel des Warenkorbs in Redis zu speichern.
 Stellen sie unbedingt sicher, dass die Nutzer nicht den Warenkorb anderer Nutzer sehen 
 oder überschreiben können.
-Da wir den Warenkorb der Nutzer nicht langfristig speichern woll,
+Da wir den Warenkorb der Nutzer nicht langfristig speichern wollen,
 soll der Warenkorb mit einer Ablauffrist belegt werden. 
 D.h. wenn innerhalb von 2 Minuten keine Änderungen (Neue Artikel in den Warenkorb,
 Ändern der Anzahl, Löschen eines Artikels) am Warenkorb durchgeführt werden,
@@ -60,7 +61,7 @@ die abgeschlossenen Bestellungen in der MySQL gespeichert werden.
 Hierzu muss das bestehende Schema erweitert werden.
 Erstellen Sie daher ein weiteres 
 [Liquibase ChangeSet](https://docs.liquibase.com/concepts/changelogs/xml-format.html) in 
-[liquibase-changelog.xml](backend/src/main/resources/META-INF/liquibase-changelog.xml), das das Speichern einer Bestellung ermöglicht.
+[liquibase-changelog.xml](backend/src/main/resources/META-INF/liquibase-changelog.xml), dass das Speichern einer Bestellung ermöglicht.
 
 5.  **(6P)** Implementieren Sie bitte die Auftragserteilung in
 [BasketResource.checkout()](src/main/java/de/berlin/htw/boundary/BasketResource.java) 
@@ -68,7 +69,7 @@ sowie das Abfragen der abgeschlossenen Bestellungen in
 [OrderResource](src/main/java/de/berlin/htw/boundary/OrderResource.java).
 Stellen Sie sicher, dass der Warenkorb nach der Bestellung leer ist.
 Achten Sie auf die Transaction Boundary, damit
-das Guthabenkonto der Kunden korrekt belastet werden. 
+das Guthabenkonto der Kunden korrekt belastet wird. 
 
 
 # Quarkus Get Started
