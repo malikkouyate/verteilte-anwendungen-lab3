@@ -17,11 +17,11 @@ class BasketResourceTest {
 
     @Inject
     protected RedisDataSource redisDS;
-    
+
     @Test
     void testGetBasket() {
         StringCommands<String, Integer> countCommands = redisDS.string(Integer.class);
-        
+
         given()
             .log().all()
             .when().header("X-User-Id", "2")
@@ -29,7 +29,7 @@ class BasketResourceTest {
             .then()
             .log().all()
             .statusCode(415);
-        
+
         assertEquals(88, countCommands.get("TODO"));
     }
 
@@ -42,7 +42,7 @@ class BasketResourceTest {
             .post("/basket")
             .then()
             .log().all()
-            .statusCode(501);
+            .statusCode(201);
     }
 
     @Test
