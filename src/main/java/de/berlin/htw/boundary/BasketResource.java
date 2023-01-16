@@ -1,14 +1,7 @@
 package de.berlin.htw.boundary;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -16,6 +9,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
+import de.berlin.htw.entity.dto.UserEntity;
+import io.vertx.core.json.Json;
+import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.redis.client.Redis;
+import io.vertx.redis.client.impl.RedisClient;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -29,6 +27,8 @@ import de.berlin.htw.boundary.dto.Item;
 import de.berlin.htw.boundary.dto.Order;
 import de.berlin.htw.control.BasketController;
 
+import java.util.Map;
+
 /**
  * @author Alexander Stanik [stanik@htw-berlin.de]
  */
@@ -37,12 +37,13 @@ public class BasketResource {
 
     @Context
     UriInfo uri;
-    
+
     @Context
     SecurityContext context;
-    
+
     @Inject
     BasketController basket;
+
 
     @Inject
     Logger logger;
@@ -52,21 +53,20 @@ public class BasketResource {
     @Operation(summary = "Retrieve the basket with all items.")
     @APIResponse(responseCode = "200", description = "Retieve all items in basket successfully")
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
-    public Basket getBasket() {
-    	logger.info(context.getUserPrincipal().getName() 
+    public Map<String, Item> getBasket(@Parameter int userId) {
+    	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
-    	
-        return basket.todo();
+        return basket.todo(userId);
     }
 
     @DELETE
     @Operation(summary = "Remove all items from basket.")
     @APIResponse(responseCode = "204", description = "Items removed successfully")
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
-    public void clearBasket() {
-    	logger.info(context.getUserPrincipal().getName() 
+    public void clearBasket(@Parameter int userId) {
+    	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
-    	// no content
+        basket.deleteAll(userId);
     }
 
     @POST
@@ -78,7 +78,7 @@ public class BasketResource {
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
     public Response checkout() {
-    	logger.info(context.getUserPrincipal().getName() 
+    	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
     	// return the url of orders and the created order itself
         return Response
@@ -96,13 +96,13 @@ public class BasketResource {
     @APIResponse(responseCode = "400", description = "Invalid request message")
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     @APIResponse(responseCode = "409", description = "Another product with this ID already exist in the basket")
-    public Response addItem(
+    public float addItem(
             @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
-            @Parameter(description = "The item to add in the basket", required = true) final Item item) {
-    	logger.info(context.getUserPrincipal().getName() 
+            @Parameter(description = "The item to add in the basket", required = true) final Item item,
+            @Parameter int userId) {
+    	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
-    	// return basket with remaining balance
-        return Response.status(Status.NOT_IMPLEMENTED).build();
+        return basket.add(userId, item.getProductId(), item);
     }
 
     @DELETE
@@ -113,12 +113,15 @@ public class BasketResource {
         content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Basket.class)) )
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
-    public Response removeItem(
-            @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId) {
-    	logger.info(context.getUserPrincipal().getName() 
+    public float removeItem(
+            @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
+            @Parameter int userId) {
+    	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
+
+
     	// return basket with remaining balance
-        return Response.status(Status.NOT_IMPLEMENTED).build();
+        return basket.deleteItem(userId, productId);
     }
 
     @PATCH
@@ -133,8 +136,9 @@ public class BasketResource {
     @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
     public Response changeCount(
             @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
-            @Parameter(description = "The number of that product in the basket", required = true) final Item item) {
-    	logger.info(context.getUserPrincipal().getName() 
+            @Parameter(description = "The number of that product in the basket", required = true) final Item item,
+            @Parameter int userId) {
+    	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
     	// return basket with remaining balance
         return Response.status(Status.NOT_IMPLEMENTED).build();

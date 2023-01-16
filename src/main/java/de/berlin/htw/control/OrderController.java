@@ -11,8 +11,8 @@ import de.berlin.htw.boundary.dto.Orders;
 @Dependent
 public class OrderController {
 
-    public Orders todo() {
-    	throw new NotSupportedException("TODO");
+    public int todo() {
+    	return 1;
     }
 
 }
