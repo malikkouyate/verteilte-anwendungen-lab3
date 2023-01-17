@@ -134,14 +134,13 @@ public class BasketResource {
     @APIResponse(responseCode = "400", description = "Invalid request message")
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
-    public Response changeCount(
+    public Float changeCount(
             @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
-            @Parameter(description = "The number of that product in the basket", required = true) final Item item,
-            @Parameter int userId) {
+            @Parameter(description = "The number of that product in the basket", required = true) final Item item) {
     	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
     	// return basket with remaining balance
-        return Response.status(Status.NOT_IMPLEMENTED).build();
+        return basket.changeCount(1,productId, item);
     }
 
 }

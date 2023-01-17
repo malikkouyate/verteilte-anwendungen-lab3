@@ -67,7 +67,12 @@ public class BasketController {
         return basket.getRemainingBalance();
     }
     public void deleteAll(int userId){
-        hashCommands.hdel(userId + ":basket");
+        Map<String, Item> allItems = todo(userId);
+
+        for(Item item : allItems.values()){
+            hashCommands.hdel(userId + ":basket", item.getProductId());
+        }
+
     }
     public float deleteItem(int userId, String productId){
         Basket basket = new Basket();
@@ -84,7 +89,7 @@ public class BasketController {
         basket.setRemainingBalance(userBalance - totalPrice);
         return (basket.getRemainingBalance());
     }
-    public Float changeCount(int userId, String productId, Integer count){
+    public Float changeCount(int userId, String productId, Item value){
 
         Basket basket = new Basket();
         UserEntity user = userRepository.findUserById(userId);
@@ -93,17 +98,17 @@ public class BasketController {
         Map<String, Item> allItems = todo(userId);
         float totalPrice = 0;
         for(Item item : allItems.values()){
-            totalPrice += item.getPrice() * count;
+            totalPrice += item.getPrice() * value.getCount();
         }
 
-        basket.setRemainingBalance(totalPrice);
 
-        Item item = hashCommands.hget(userId + ":basket", productId);
+        basket.setRemainingBalance(totalPrice);
         if(userBalance >= basket.getRemainingBalance()){
-            item.setCount(count);
+            hashCommands.hset(userId + ":basket",productId, value);
         } else {
             throw new IllegalArgumentException("Balance to low");
         }
+        basket.setRemainingBalance(userBalance - basket.getRemainingBalance());
         return basket.getRemainingBalance();
     }
 
