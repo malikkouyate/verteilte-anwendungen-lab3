@@ -53,9 +53,10 @@ public class BasketResource {
     @Operation(summary = "Retrieve the basket with all items.")
     @APIResponse(responseCode = "200", description = "Retieve all items in basket successfully")
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
-    public Map<String, Item> getBasket(@Parameter int userId) {
+    public Map<String, Item> getBasket() {
     	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
+        int userId = 1;
         return basket.todo(userId);
     }
 
@@ -63,10 +64,10 @@ public class BasketResource {
     @Operation(summary = "Remove all items from basket.")
     @APIResponse(responseCode = "204", description = "Items removed successfully")
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
-    public void clearBasket(@Parameter int userId) {
+    public void clearBasket() {
     	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
-        basket.deleteAll(userId);
+        basket.deleteAll(1);
     }
 
     @POST
@@ -96,13 +97,12 @@ public class BasketResource {
     @APIResponse(responseCode = "400", description = "Invalid request message")
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     @APIResponse(responseCode = "409", description = "Another product with this ID already exist in the basket")
-    public float addItem(
+    public Float addItem(
             @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
-            @Parameter(description = "The item to add in the basket", required = true) final Item item,
-            @Parameter int userId) {
+            @Parameter(description = "The item to add in the basket", required = true) final Item item) {
     	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
-        return basket.add(userId, item.getProductId(), item);
+        return basket.add(1, productId, item);
     }
 
     @DELETE
@@ -114,14 +114,14 @@ public class BasketResource {
     @APIResponse(responseCode = "401", description = "No or wrong User Id provided as header")
     @APIResponse(responseCode = "404", description = "No product with this ID in the basket")
     public float removeItem(
-            @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId,
-            @Parameter int userId) {
+            @Parameter(description = "ID of the product", required = true) @PathParam("productId") final String productId
+            ) {
     	logger.info(context.getUserPrincipal().getName()
     			+ " is calling " + uri.getAbsolutePath());
 
 
     	// return basket with remaining balance
-        return basket.deleteItem(userId, productId);
+        return basket.deleteItem(1, productId);
     }
 
     @PATCH

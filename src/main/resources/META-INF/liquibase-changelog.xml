@@ -30,30 +30,50 @@
 
     <changeSet id="verteilte-anwendungen-0.0.2" author="alexander.stanik@htw-berlin.de">
         <insert tableName="USER">
-            <column name="ID">1</column>    
-            <column name="NAME">Maximilian</column>    
-            <column name="BALANCE">120.30</column>    
+            <column name="ID">1</column>
+            <column name="NAME">Maximilian</column>
+            <column name="BALANCE">120.30</column>
         </insert>
         <insert tableName="USER">
-            <column name="ID">2</column>    
-            <column name="NAME">Mohamed</column>    
-            <column name="BALANCE">70.87</column>    
+            <column name="ID">2</column>
+            <column name="NAME">Mohamed</column>
+            <column name="BALANCE">70.87</column>
         </insert>
         <insert tableName="USER">
-            <column name="ID">3</column>    
-            <column name="NAME">Marcin</column>    
-            <column name="BALANCE">8920.06</column>    
+            <column name="ID">3</column>
+            <column name="NAME">Marcin</column>
+            <column name="BALANCE">8920.06</column>
         </insert>
         <insert tableName="USER">
-            <column name="ID">4</column>    
-            <column name="NAME">Mian</column>    
-            <column name="BALANCE">3150.00</column>    
+            <column name="ID">4</column>
+            <column name="NAME">Mian</column>
+            <column name="BALANCE">3150.00</column>
         </insert>
         <insert tableName="USER">
-            <column name="ID">5</column>    
-            <column name="NAME">Mandy</column>    
-            <column name="BALANCE">0.11</column>    
+            <column name="ID">5</column>
+            <column name="NAME">Mandy</column>
+            <column name="BALANCE">0.11</column>
         </insert>
+    </changeSet>
+
+    <changeSet id="verteilte-anwendungen-0.0.3" author="alexander.stanik@htw-berlin.de">
+        <createTable tableName="ORDERS">
+            <column name="ID" type="INT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" />
+            </column>
+            <column name="ITEMS" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="TOTAL" type="DECIMAL(10, 2)">
+                <constraints nullable="false" />
+            </column>
+            <column name="CREATED_AT" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false" />
+            </column>
+            <column name="MODIFIED_AT" type="timestamp" defaultValueComputed="current_timestamp">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
     </changeSet>
 
 </databaseChangeLog>

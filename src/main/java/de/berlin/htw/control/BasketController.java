@@ -24,6 +24,7 @@ public class BasketController {
     @Inject
     protected RedisDataSource redisDS;
 
+    @Inject
     UserRepository userRepository;
 
 
@@ -44,9 +45,9 @@ public class BasketController {
     public Map<String, Item> todo(int userId) {
         return hashCommands.hgetall(userId + ":basket");
     }
-    public float add(int userId, String field, Item value){
+    public Float add(int userId, String field, Item value){
         Basket basket = new Basket();
-        UserEntity user = userRepository.findUserById(userId);
+        UserEntity user = userRepository.findUserById(1);
         float userBalance = user.getBalance();
 
         Map<String, Item> allItems = todo(userId);
@@ -59,6 +60,8 @@ public class BasketController {
         basket.setRemainingBalance(totalPrice);
         if(userBalance >= basket.getRemainingBalance()){
             hashCommands.hset(userId + ":basket",field, value);
+        } else {
+            throw new IllegalArgumentException("Balance to low");
         }
         basket.setRemainingBalance(userBalance - basket.getRemainingBalance());
         return basket.getRemainingBalance();
@@ -68,6 +71,9 @@ public class BasketController {
     }
     public float deleteItem(int userId, String productId){
         Basket basket = new Basket();
+        UserEntity user = userRepository.findUserById(1);
+        float userBalance = user.getBalance();
+
         hashCommands.hdel(userId + ":basket", productId);
 
         Map<String, Item> allItems = todo(userId);
@@ -75,26 +81,30 @@ public class BasketController {
         for(Item item : allItems.values()){
             totalPrice += item.getPrice() * item.getCount();
         }
-        basket.setRemainingBalance(totalPrice);
-        return basket.getRemainingBalance();
+        basket.setRemainingBalance(userBalance - totalPrice);
+        return (basket.getRemainingBalance());
     }
-    public void changeCount(int userId, String productId, Integer count){
+    public Float changeCount(int userId, String productId, Integer count){
 
         Basket basket = new Basket();
-       /* UserEntity user = userRepository.findUserById(userId);
+        UserEntity user = userRepository.findUserById(userId);
         float userBalance = user.getBalance();
 
         Map<String, Item> allItems = todo(userId);
         float totalPrice = 0;
         for(Item item : allItems.values()){
-            totalPrice += item.getPrice() * item.getCount();
+            totalPrice += item.getPrice() * count;
         }
 
         basket.setRemainingBalance(totalPrice);
 
+        Item item = hashCommands.hget(userId + ":basket", productId);
         if(userBalance >= basket.getRemainingBalance()){
             item.setCount(count);
-        }*/
+        } else {
+            throw new IllegalArgumentException("Balance to low");
+        }
+        return basket.getRemainingBalance();
     }
 
     }
